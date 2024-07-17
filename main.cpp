@@ -12,13 +12,13 @@
 using namespace Ipopt;
 
 // Constants
-double pi = 3.141592653;    // TODO Update
+double pi = 3.141592653;    //
 double g = 9.81;            //
 
 // Robot Parameters
-double l0 = 0.17;           // 
-double k0 = 1699;           // 
-double b = 5;               //
+double lz = 0.17;           // 
+double kz = 1699;           // 
+double b = 5.0;               //
 double m = 1.2;             // 
 
 // Initial Condition
@@ -26,7 +26,7 @@ double leg = 0.17;          //
 double legDot = -1.2369;    //
 double theta = 1.3129;      //
 double thetaDot = 2.5559;   //
-double ia0 = 0.2;           //  
+double iaz = 0.2;           //  
 
 // Motor Parameters
 double vmax = 18;           //
@@ -34,9 +34,9 @@ double Ra = 0.135;          //
 double R = 33.0625;         //
 double kt = 0.0098;         //
 double kb = kt;             //
-double c = 0.0000016; //* std::pow(10.0, -6);       //
-double J = 0.00000183; //* std::pow(10.0, -6);      //
-double La = 0.0000166; //* std::pow(10.0, -5);     //
+double c = 0.0000016; //* std::pow(10.0, -6);      
+double J = 0.00000183; //* std::pow(10.0, -6);      
+double La = 0.0000166; //* std::pow(10.0, -5);     
 
 
 int main(int argc, char** argv) {
@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
    //       suitable for your optimization problem.
    //app->Options()->SetNumericValue("tol", 10e-5);
    app->Options()->SetNumericValue("constr_viol_tol", 10e-3);
-   app->Options()->SetIntegerValue("max_iter", 0);
+   app->Options()->SetIntegerValue("max_iter", 5000);
    app->Options()->SetStringValue("hessian_approximation", "limited-memory");
    //app->Options()->SetStringValue("mu_strategy", "adaptive");
    //app->Options()->SetStringValue("output_file", "ipopt.out");
@@ -130,8 +130,8 @@ bool Collocation::get_nlp_info(
     assert(variableCount == 55);
     assert(constraintCount == 47);
     
-    double lowerBoundPattern[6] = {-1.0 * vmax, 0.5 * l0, -10, theta - 0.1, 0, -0.5}; 
-    double upperBoundPattern[6] = {1.0 * vmax,  1.0 * l0, 10,  pi - theta + 0.1, 100, 0.5};
+    double lowerBoundPattern[6] = {-1.0 * vmax, 0.5 * lz, -10, theta - 0.1, 0, -0.5}; 
+    double upperBoundPattern[6] = {1.0 * vmax,  1.0 * lz, 10,  pi - theta + 0.1, 100, 0.5};
 
 
     // Set variable bounds x2-x55. Indices of 1-54
@@ -179,61 +179,174 @@ bool Collocation::get_starting_point(
     assert(init_lambda == false);
 
     // initialize to the given starting point
-    x[0] = 0.0942; //0.5;
-    x[1] = -0.3501; //0.0;
-    x[2] = -0.1494; //0.1 * vmax;
-    x[3] = 0.2306; //0.2 * vmax;
-    x[4] = 0.769; //0.3 * vmax;
-    x[5] = 1.4717; //0.4 * vmax;
-    x[6] = 2.1133; //0.5 * vmax;
-    x[7] = 2.3532; //0.6 * vmax;
-    x[8] = 2.1004; //0.7 * vmax;
-    x[9] = 1.7377;// 0.8 * vmax;
-    x[10] = 0.17; //l0;
-    x[11] = 0.1557; //l0 * 0.95;
-    x[12] = 0.1435; //l0 * 0.90;
-    x[13] = 0.1357; //l0 * 0.85;
-    x[14] = 0.1335; //l0 * 0.80;
-    x[15] = 0.1371; //l0 * 0.85;
-    x[16] = 0.1456; //l0 * 0.90;
-    x[17] = 0.1573; //l0 * 0.95;
-    x[18] = 0.17; //l0;
-    x[19] = -1.2369; //legDot;
-    x[20] = -1.1594; //legDot * 0.75;
-    x[21] = -0.8721; //legDot * 0.5;
-    x[22] = -0.4355; //legDot * 0.25;
-    x[23] = 0.0634; //0.0;
-    x[24] = 0.5317; //legDot * -0.25;
-    x[25] = 0.8876; //legDot * -0.50;
-    x[26] = 1.0706;// legDot * -0.75;
-    x[27] = 1.0502; //legDot * -1;
-    x[28] = 1.3129; //theta;
-    x[29] = 1.3381; //(1.0/8) * pi - theta;
-    x[30] = 1.3561; //(2.0/8) * pi - theta;
-    x[31] = 1.3717; //(3.0/8) * pi - theta;
-    x[32] = 1.3916; //(4.0/8) * pi - theta;
-    x[33] = 1.4215; //(5.0/8) * pi - theta;
-    x[34] = 1.4639; //(6.0/8) * pi - theta;
-    x[35] = 1.5156; //(7.0/8) * pi - theta;
-    x[36] = 1.5709; //pi - theta;
-    x[37] = 2.5559; //thetaDot;
-    x[38] = 1.7784; //thetaDot;
-    x[39] = 1.3464;//thetaDot;
-    x[40] = 1.4073; //thetaDot;
-    x[41] = 2.0348; //thetaDot;
-    x[42] = 3.0654; //thetaDot;
-    x[43] = 4.0524; //thetaDot;
-    x[44] = 4.599;// thetaDot;
-    x[45] = 4.6992;// thetaDot;
-    x[46] = 0.2; //0.1;
-    x[47] = 2.5048; //0.1;
-    x[48] = 5.4354; //0.1;
-    x[49] = 8.4664; //0.1;
-    x[50] = 11.4481; //0.1;
-    x[51] = 13.0869; //0.1;
-    x[52] = 11.9215; //0.1;
-    x[53] = 8.2269; //0.1;
-    x[54] = 4.8566; //0.1;
+ /*
+x[0] = 0.0600000000000000;
+x[1] = 0;
+x[2] = 1;
+x[3] = 2;
+x[4] = 3;
+x[5] = 4;
+x[6] = 5;
+x[7] = 6;
+x[8] = 7;
+x[9] = 8;
+x[10] = 0.153000000000000;
+x[11] = 0.153000000000000;
+x[12] = 0.153000000000000;
+x[13] = 0.153000000000000;
+x[14] = 0.153000000000000;
+x[15] = 0.153000000000000;
+x[16] = 0.153000000000000;
+x[17] = 0.153000000000000;
+x[18] = 0.153000000000000;
+x[19] = -1.23693101005372;
+x[20] = -0.927698257540290;
+x[21] = -0.618465505026860;
+x[22] = -0.309232752513430;
+x[23] = 0;
+x[24] = 0.309232752513430;
+x[25] = 0.618465505026860;
+x[26] = 0.927698257540290;
+x[27] = 1.23693101005372;
+x[28] = 1.31288888888889;
+x[29] = 1.37736574836539;
+x[30] = 1.44184260784189;
+x[31] = 1.50631946731840;
+x[32] = 1.57079632679490;
+x[33] = 1.63527318627140;
+x[34] = 1.69975004574790;
+x[35] = 1.76422690522440;
+x[36] = 1.82870376470090;
+x[37] = 5.11181335096876;
+x[38] = 5.11181335096876;
+x[39] = 5.11181335096876;
+x[40] = 5.11181335096876;
+x[41] = 5.11181335096876;
+x[42] = 5.11181335096876;
+x[43] = 5.11181335096876;
+x[44] = 5.11181335096876;
+x[45] = 5.11181335096876;
+x[46] = 0.49;
+x[47] = 0.49;
+x[48] = 0.49;
+x[49] = 0.49;
+x[50] = 0.49;
+x[51] = 0.49;
+x[52] = 0.49;
+x[53] = 0.49;
+x[54] = 0.49;
+*/
+    // x[0] = 0.0942; //0.5;
+    // x[1] = -0.3501; //0.0;
+    // x[2] = -0.1494; //0.1 * vmax;
+    // x[3] = 0.2306; //0.2 * vmax;
+    // x[4] = 0.769; //0.3 * vmax;
+    // x[5] = 1.4717; //0.4 * vmax;
+    // x[6] = 2.1133; //0.5 * vmax;
+    // x[7] = 2.3532; //0.6 * vmax;
+    // x[8] = 2.1004; //0.7 * vmax;
+    // x[9] = 1.7377;// 0.8 * vmax;
+    // x[10] = 0.17; //lz;
+    // x[11] = 0.1557; //lz * 0.95;
+    // x[12] = 0.1435; //lz * 0.90;
+    // x[13] = 0.1357; //lz * 0.85;
+    // x[14] = 0.1335; //lz * 0.80;
+    // x[15] = 0.1371; //lz * 0.85;
+    // x[16] = 0.1456; //lz * 0.90;
+    // x[17] = 0.1573; //lz * 0.95;
+    // x[18] = 0.17; //lz;
+    // x[19] = -1.2369; //legDot;
+    // x[20] = -1.1594; //legDot * 0.75;
+    // x[21] = -0.8721; //legDot * 0.5;
+    // x[22] = -0.4355; //legDot * 0.25;
+    // x[23] = 0.0634; //0.0;
+    // x[24] = 0.5317; //legDot * -0.25;
+    // x[25] = 0.8876; //legDot * -0.50;
+    // x[26] = 1.0706;// legDot * -0.75;
+    // x[27] = 1.0502; //legDot * -1;
+    // x[28] = 1.3129; //theta;
+    // x[29] = 1.3381; //(1.0/8) * pi - theta;
+    // x[30] = 1.3561; //(2.0/8) * pi - theta;
+    // x[31] = 1.3717; //(3.0/8) * pi - theta;
+    // x[32] = 1.3916; //(4.0/8) * pi - theta;
+    // x[33] = 1.4215; //(5.0/8) * pi - theta;
+    // x[34] = 1.4639; //(6.0/8) * pi - theta;
+    // x[35] = 1.5156; //(7.0/8) * pi - theta;
+    // x[36] = 1.5709; //pi - theta;
+    // x[37] = 2.5559; //thetaDot;
+    // x[38] = 1.7784; //thetaDot;
+    // x[39] = 1.3464;//thetaDot;
+    // x[40] = 1.4073; //thetaDot;
+    // x[41] = 2.0348; //thetaDot;
+    // x[42] = 3.0654; //thetaDot;
+    // x[43] = 4.0524; //thetaDot;
+    // x[44] = 4.599;// thetaDot;
+    // x[45] = 4.6992;// thetaDot;
+    // x[46] = 0.2; //0.1;
+    // x[47] = 2.5048; //0.1;
+    // x[48] = 5.4354; //0.1;
+    // x[49] = 8.4664; //0.1;
+    // x[50] = 11.4481; //0.1;
+    // x[51] = 13.0869; //0.1;
+    // x[52] = 11.9215; //0.1;
+    // x[53] = 8.2269; //0.1;
+    // x[54] = 4.8566; //0.1;
+
+    x[0] = 0.5;
+    x[1] = 0.0;
+    x[2] = 0.1 * vmax;
+    x[3] = 0.2 * vmax;
+    x[4] = 0.3 * vmax;
+    x[5] = 0.4 * vmax;
+    x[6] = 0.5 * vmax;
+    x[7] = 0.6 * vmax;
+    x[8] = 0.7 * vmax;
+    x[9] = 0.8 * vmax;
+    x[10] = lz;
+    x[11] = lz * 0.95;
+    x[12] = lz * 0.90;
+    x[13] = lz * 0.85;
+    x[14] = lz * 0.80;
+    x[15] = lz * 0.85;
+    x[16] = lz * 0.90;
+    x[17] = lz * 0.95;
+    x[18] = lz;
+    x[19] = legDot;
+    x[20] = legDot * 0.75;
+    x[21] = legDot * 0.5;
+    x[22] = legDot * 0.25;
+    x[23] = 0.0;
+    x[24] = legDot * -0.25;
+    x[25] = legDot * -0.50;
+    x[26] = legDot * -0.75;
+    x[27] = legDot * -1;
+    x[28] = theta;
+    x[29] = (1.0/8) * pi - theta;
+    x[30] = (2.0/8) * pi - theta;
+    x[31] = (3.0/8) * pi - theta;
+    x[32] = (4.0/8) * pi - theta;
+    x[33] = (5.0/8) * pi - theta;
+    x[34] = (6.0/8) * pi - theta;
+    x[35] = (7.0/8) * pi - theta;
+    x[36] = pi - theta;
+    x[37] = thetaDot;
+    x[38] = thetaDot;
+    x[39] = thetaDot;
+    x[40] = thetaDot;
+    x[41] = thetaDot;
+    x[42] = thetaDot;
+    x[43] = thetaDot;
+    x[44] = thetaDot;
+    x[45] = thetaDot;
+    x[46] = 0.1;
+    x[47] = 0.1;
+    x[48] = 0.1;
+    x[49] = 0.1;
+    x[50] = 0.1;
+    x[51] = 0.1;
+    x[52] = 0.1;
+    x[53] = 0.1;
+    x[54] = 0.1;
 
     return true;
 }
@@ -1847,14 +1960,6 @@ void Collocation::finalize_solution(
         std::cout << "x[" << i << "] = " << x[i] << std::endl;
     }
 
-    std::cout << std::endl << std::endl << "Solution of the bound multipliers, z_L and z_U" << std::endl;
-    for (Index i = 0; i < n; i++) {
-        std::cout << "z_L[" << i << "] = " << z_L[i] << std::endl;
-    }
-    for (Index i = 0; i < n; i++) {
-        std::cout << "z_U[" << i << "] = " << z_U[i] << std::endl;
-    }
-
     std::cout << std::endl << std::endl << "Objective value" << std::endl;
     std::cout << "f(x*) = " << obj_value << std::endl;
 
@@ -1863,7 +1968,6 @@ void Collocation::finalize_solution(
         std::cout << "g(" << i << ") = " << g[i] << std::endl;
     }
 }
-
 
 bool Collocation::intermediate_callback(
     AlgorithmMode              mode,
@@ -1880,57 +1984,5 @@ bool Collocation::intermediate_callback(
     const IpoptData*           ip_data,
     IpoptCalculatedQuantities* ip_cq
     ) {
-        
-    return true;
-    if (!printiterate_) {
-        return true;
-    }
-
-    Number x[4];
-    Number x_L_viol[4];
-    Number x_U_viol[4];
-    Number z_L[4];
-    Number z_U[4];
-    Number compl_x_L[4];
-    Number compl_x_U[4];
-    Number grad_lag_x[4];
-
-    Number g[2];
-    Number lambda[2];
-    Number constraint_violation[2];
-    Number compl_g[2];
-
-    bool have_iter = get_curr_iterate(ip_data, ip_cq, false, 4, x, z_L, z_U, 2, g, lambda);
-    bool have_viol = get_curr_violations(ip_data, ip_cq, false, 4, x_L_viol, x_U_viol, compl_x_L, compl_x_U, grad_lag_x, 2, constraint_violation, compl_g);
-
-    printf("Current iterate:\n");
-    printf("  %-12s %-12s %-12s %-12s %-12s %-12s %-12s\n", "x", "z_L", "z_U", "bound_viol", "compl_x_L", "compl_x_U", "grad_lag_x");
-    for (int i = 0; i < 4; ++i) {
-        if (have_iter) {
-            printf("  %-12g %-12g %-12g", x[i], z_L[i], z_U[i]);
-        } else {
-            printf("  %-12s %-12s %-12s", "n/a", "n/a", "n/a");
-        }
-        if (have_viol) {
-            printf(" %-12g %-12g %-12g %-12g\n", x_L_viol[i] > x_U_viol[i] ? x_L_viol[i] : x_U_viol[i], compl_x_L[i], compl_x_U[i], grad_lag_x[i]);
-        } else {
-            printf(" %-12s %-12s %-12s %-12s\n", "n/a", "n/a", "n/a", "n/a");
-        }
-    }
-
-    printf("  %-12s %-12s %-12s %-12s\n", "g(x)", "lambda", "constr_viol", "compl_g");
-    for (int i = 0; i < 2; ++i) {
-        if (have_iter) {
-            printf("  %-12g %-12g", g[i], lambda[i]);
-        } else {
-            printf("  %-12s %-12s", "n/a", "n/a");
-        }
-        if (have_viol){
-            printf(" %-12g %-12g\n", constraint_violation[i], compl_g[i]);
-        } else {
-            printf(" %-12s %-12s\n", "n/a", "n/a");
-        }
-    }
-
     return true;
 }

@@ -14,6 +14,21 @@ class Constraint:
         return str("Constraint" + str(self.name))
 
     def parse_equation(self, equation): 
+        def replace_constants(text):
+            match text.group(0):
+                case 'l0':
+                    return 'lz'
+                case 'k0':
+                    return 'kz'
+                case 'ia0':
+                    return 'iaz'
+
+        def replace_double(text):
+            return str(int(text.group(1)) / int(text.group(2)))
+        
+        def replace_double2(text):
+            return text.group(1) + '.0' + '/'
+        
         def replace_subscript(text):
             inner_word = text.group(1)
             return ''.join(inner_word.split(", "))
@@ -56,12 +71,15 @@ class Constraint:
             return string
 
         equation = re.sub(r"Subscript\[([^\]]*)\]", replace_subscript, equation)
+        equation = re.sub(r"(k0)|(ia0)|(l0)", replace_constants, equation)
         equation = re.sub(r"([^ )(*+-/]+)\^(\d+)", replace_power, equation)
         equation = re.sub(r"([^ )(*+-/]+)\^\((-\d)\)", replace_power, equation)
         equation = replace_all_complex_powers(equation)
         equation = re.sub(r"Cos\[([^\]]*)\]", replace_cos, equation)
         equation = re.sub(r"Sin\[([^\]]*)\]", replace_sin, equation)
         equation = re.sub(r"(x\d+)", replace_x, equation)
+        #equation = re.sub(r"(\d+) ?\/ ?(\d+)", replace_double,equation)
+        equation = re.sub(r"(\d+) ?\/", replace_double2,equation)
         return equation
 
     def parse_lagrangian(self, file):
@@ -126,11 +144,12 @@ def generate_header(constraints, cost_function):
 if __name__ == '__main__':
     
     constraints = []
-    for i in range(1, 6+1):
-        constraints.append(Constraint(f'h{0}_{i}.txt'))
     for i in range(1, 8+1):
         for j in range(1, 5+1):
             constraints.append(Constraint(f'h{i}_{j}.txt'))
+
+    for i in range(1, 6+1):
+        constraints.append(Constraint(f'h{0}_{i}.txt'))
 
     cost_function = Constraint("cost_function.txt") # Not a constraint but same formatting used
     

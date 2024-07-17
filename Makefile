@@ -1,15 +1,3 @@
-# Copyright (C) 2005, 2010 International Business Machines and others.
-# All Rights Reserved.
-# This file is distributed under the Eclipse Public License.
-
-##########################################################################
-#    You can modify this example makefile to fit for your own program.   #
-#    Usually, you only need to change the four CHANGEME entries below.   #
-##########################################################################
-
-# CHANGEME: This should be the name of your executable
-EXE = collocation
-
 # CHANGEME: Here is the name of all object files corresponding to the source
 #           code that you wrote in order to define the problem statement
 OBJS = main.o 
@@ -25,14 +13,9 @@ ADDINCFLAGS =
 #  change certain compiler options, you might have to recompile Ipopt.   #
 ##########################################################################
 
-# C++ Compiler command
-CXX = g++
-
 # C++ Compiler options
 CXXFLAGS = -O2 -DNDEBUG 
 
-# additional C++ Compiler options for linking
-CXXLINKFLAGS = 
 
 prefix=/usr/local
 exec_prefix=${prefix}
@@ -47,8 +30,8 @@ LIBS = `PKG_CONFIG_PATH=/usr/local/lib/pkgconfig: pkg-config --libs ipopt`
 
 
 # VLAD Created Rules
-all: formulas.hpp $(EXE) 
-	./$(EXE)
+all: formulas.hpp collocation
+	./collocation
 
 formulas.hpp: equations
 	python3 Mathematica/generate_header.py 
@@ -59,17 +42,14 @@ equations:
 	python3 Mathematica/create_other_constraints.py
 
 clean:
-	rm -rf $(EXE) $(OBJS) ipopt.out formulas.hpp
+	rm -rf collocation $(OBJS) ipopt.out formulas.hpp
 	rm -f Mathematica/*.txt
 
-
 # Default rules
-
 .SUFFIXES: .cpp .o
 
-$(EXE): $(OBJS)
-	$(CXX) $(CXXLINKFLAGS) $(CXXFLAGS) -o $@ $(OBJS) $(ADDLIBS) $(LIBS)
-
+collocation: $(OBJS)
+	g++ $(CXXFLAGS) -o $@ $(OBJS) $(ADDLIBS) $(LIBS)
 
 .cpp.o: 
-	$(CXX) $(CXXFLAGS) $(INCL) -c -o $@ $<
+	g++ $(CXXFLAGS) $(INCL) -c -o $@ $<
