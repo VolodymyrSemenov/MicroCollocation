@@ -117,13 +117,34 @@ class Defines:
                     self.defines[f'JACOBIAN_Y_{non_zeros}'] = j
                     self.defines[f'JACOBIAN_VAL_{non_zeros}'] = val
                     non_zeros += 1
-                    
-
         self.defines["JACOBIAN_NONZERO"] = non_zeros
 
     def add_hessian_of_lagrangian(self, constraints, cost_function):
+        dimensions = len(constraints[0].hessian)
+        ret = [['0']*dimensions for _ in range(dimensions)] 
+        for c in range(len(constraints)):
+            for i in range(dimensions):
+                for j in range(dimensions):
+                    val = constraints[c].hessian[i][j]
+                    if val != '0':
+                        ret[i][j] += f' + lambda[{c}] * ({val})'
+
+        for i in range(dimensions):
+            for j in range(dimensions):
+                val = cost_function.hessian[i][j]
+                if val != '0':
+                    ret[i][j] += f' + obj_factor * ({val})'
+
         non_zeros = 0
-        non_zero_list = []
+        for i in range(dimensions):
+            for j in range(dimensions):
+                val = ret[i][j]
+                if val != '0':
+                    self.defines[f'HESSIAN_X_{non_zeros}'] = i
+                    self.defines[f'HESSIAN_Y_{non_zeros}'] = j
+                    self.defines[f'HESSIAN_VAL_{non_zeros}'] = val
+                    non_zeros += 1
+
         self.defines["HESSIAN_NONZERO"] = non_zeros
 
     def return_defines(self):
