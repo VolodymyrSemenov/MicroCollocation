@@ -2,26 +2,20 @@
 #           code that you wrote in order to define the problem statement
 OBJS = main.o 
 
-# CHANGEME: Additional libraries
-ADDLIBS = 
-
-# CHANGEME: Additional flags for compilation (e.g., include flags)
-ADDINCFLAGS =
-
 ##########################################################################
 #  Usually, you don't have to change anything below.  Note that if you   #
 #  change certain compiler options, you might have to recompile Ipopt.   #
 ##########################################################################
 
 # C++ Compiler options
-CXXFLAGS = -O2 -DNDEBUG 
+CXXFLAGS = -O03 -DNDEBUG 
 
 
 prefix=/usr/local
 exec_prefix=${prefix}
 
 # Include directories
-INCL = `PKG_CONFIG_PATH=/usr/local/lib/pkgconfig: pkg-config --cflags ipopt` $(ADDINCFLAGS)
+INCL = `PKG_CONFIG_PATH=/usr/local/lib/pkgconfig: pkg-config --cflags ipopt`
 #INCL = -I${prefix}/include/coin-or -I/usr/local/include/coin-or/hsl   -DIPOPTLIB_BUILD $(ADDINCFLAGS)
 
 # Linker flags

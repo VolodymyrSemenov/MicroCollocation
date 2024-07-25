@@ -12,31 +12,31 @@
 using namespace Ipopt;
 
 // Constants
-const double pi = 3.141592653;    //
-const double g = 9.81;            //
+const double pi = 3.141592653;    
+const double g = 9.81;           
 
 // Robot Parameters
-const double lz = 0.17;           // 
-const double kz = 1699;           // 
-const double b = 5.0;             //
-const double m = 1.2;             // 
+const double lz = 0.17;            
+const double kz = 1699;            
+const double b = 5.0;             
+const double m = 1.2;           
 
 // Initial Condition
-const double leg = 0.17;          //
-const double legDot = -1.2369;    //
-const double theta = 1.3129;      //
-const double thetaDot = 2.5559;   //
-const double iaz = 0.2;           //  
+const double leg = 0.17;  
+const double legDot = -1.2369;    
+const double theta = 1.3129;      
+const double thetaDot = 2.5559;   
+const double iaz = 0.2; 
 
 // Motor Parameters
-const double vmax = 18;           //
-const double Ra = 0.135;          //
-const double R = 33.0625;         //
-const double kt = 0.0098;         //
-const double kb = kt;             //
-const double c = 0.0000016; //* std::pow(10.0, -6);      
-const double J = 0.00000183; //* std::pow(10.0, -6);      
-const double La = 0.0000166; //* std::pow(10.0, -5);     
+const double vmax = 18;
+const double Ra = 0.135;
+const double R = 33.0625; 
+const double kt = 0.0098;        
+const double kb = kt;             
+const double c = 0.0000016; 
+const double J = 0.00000183;       
+const double La = 0.0000166;    
 
 
 int main(int argc, char** argv) {
@@ -1789,7 +1789,7 @@ bool Collocation::eval_jac_g(
     return true;
 }
 
-
+/*
 //return the structure or values of the Hessian of the Lagrangian
 bool Collocation::eval_h(
     Index         variableCount,
@@ -4343,7 +4343,7 @@ bool Collocation::eval_h(
     return true;
 }
 
-
+*/
 void Collocation::finalize_solution(
     SolverReturn               status,
     Index                      n,
@@ -4362,7 +4362,7 @@ void Collocation::finalize_solution(
 
     // For this example, we write the solution to the console
     std::cout << std::endl << std::endl << "Solution of the primal variables, x" << std::endl;
-    for (Index i = 0; i < 11; i++) {
+    for (Index i = 0; i < n; i++) {
         std::cout << "x[" << i << "] = " << x[i] << std::endl;
     }
 
