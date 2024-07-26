@@ -53,11 +53,10 @@ int main(int argc, char** argv) {
    // Change some options
    // Note: The following choices are only examples, they might not be
    //       suitable for your optimization problem.
-   //app->Options()->SetNumericValue("tol", 10e-5);
+   app->Options()->SetNumericValue("tol", 10e-5);
    app->Options()->SetNumericValue("constr_viol_tol", 10e-3);
-   app->Options()->SetIntegerValue("max_iter", 5000);
-   //app->Options()->SetStringValue("hessian_approximation", "limited-memory");
-   //app->Options()->SetStringValue("mu_strategy", "adaptive");
+   app->Options()->SetStringValue("hessian_approximation", "limited-memory");
+   //app->Options()->SetIntegerValue("max_iter", 0);
    //app->Options()->SetStringValue("output_file", "ipopt.out");
 
    // Initialize the IpoptApplication and process the options
@@ -76,10 +75,6 @@ int main(int argc, char** argv) {
    } else {
       std::cout << std::endl << std::endl << "*** The problem FAILED!" << std::endl;
    }
-
-   // As the SmartPtrs go out of scope, the reference count
-   // will be decremented and the objects will automatically
-   // be deleted.
 
    return (int) status;
 }
@@ -101,10 +96,9 @@ bool Collocation::get_nlp_info(
     Index&          hessianNonZeroCount,
     IndexStyleEnum& index_style
     ) {
-    // 55 variables, x1 through x55
-    variableCount = 55;
+    variableCount = 50;
 
-    constraintCount = 46;
+    constraintCount = 40;
 
     // jacobian contains 8 nonzeros
     jacobianNonZeroCount = JACOBIAN_NONZERO;
@@ -127,28 +121,28 @@ bool Collocation::get_nlp_info(
     Number* constraintLowerBounds,
     Number* constraintUpperBounds
     ) {
-    assert(variableCount == 55);
-    assert(constraintCount == 47);
-    
-    double lowerBoundPattern[6] = {-1.0 * vmax, 0.5 * lz, -10, theta - 0.1, 0, -0.5}; 
-    double upperBoundPattern[6] = {1.0 * vmax,  1.0 * lz, 10,  pi - theta + 0.1, 100, 0.5};
+    const double lowerBoundPattern[6] = {-1.0 * vmax, 0.5 * lz, -10, theta - 0.1, 0, -0.5};
+    const double upperBoundPattern[6] = {1.0 * vmax,  1.0 * lz, 10,  pi - theta + 0.1, 100, 0.5};
 
-
-    // Set variable bounds x2-x55. Indices of 1-54
-    for (Index i = 1; i < variableCount; i++) {
-        variableLowerBounds[i] = lowerBoundPattern[(i-1) / 9];
-        variableUpperBounds[i] = upperBoundPattern[(i-1) / 9];
-    }
     
     // Put in bounds for x1
     variableLowerBounds[0] = 0.0;
     variableUpperBounds[0] = 1.0;
 
-    // Update bounds that don't fit pattern
-    variableUpperBounds[19] = 0.0;
-    variableLowerBounds[27] = 0.0;
+    for (Index i = 1; i < 10; i++) {
+        variableLowerBounds[i] = -1.0 * vmax;
+        variableUpperBounds[i] = 1.0 * vmax;
+    }
 
-    variableLowerBounds[36] = pi / 2; 
+    for (Index i = 10; i < variableCount; i++) {
+        variableLowerBounds[i] = lowerBoundPattern[(i-2) / 8];
+        variableUpperBounds[i] = upperBoundPattern[(i-2) / 8]; 
+    }
+
+    // Update bounds that don't fit pattern
+    variableLowerBounds[25] = 0.0;
+
+    variableLowerBounds[33] = pi / 2; 
 
     // All Constraints are Equality constraints to 0
     for (int i = 0; i < constraintCount; i++) {
@@ -171,9 +165,6 @@ bool Collocation::get_starting_point(
     bool    init_lambda,
     Number* lambda
     ) {
-    // Here, we assume we only have starting values for x, if you code
-    // your own NLP, you can provide starting values for the dual variables
-    // if you wish
     assert(init_x == true);
     assert(init_z == false);
     assert(init_lambda == false);
@@ -187,51 +178,46 @@ bool Collocation::get_starting_point(
     x[7] = 0.6 * vmax;
     x[8] = 0.7 * vmax;
     x[9] = 0.8 * vmax;
-    x[10] = lz;
-    x[11] = lz * 0.95;
-    x[12] = lz * 0.90;
-    x[13] = lz * 0.85;
-    x[14] = lz * 0.80;
-    x[15] = lz * 0.85;
-    x[16] = lz * 0.90;
-    x[17] = lz * 0.95;
-    x[18] = lz;
-    x[19] = legDot;
-    x[20] = legDot * 0.75;
-    x[21] = legDot * 0.5;
-    x[22] = legDot * 0.25;
-    x[23] = 0.0;
-    x[24] = legDot * -0.25;
-    x[25] = legDot * -0.50;
-    x[26] = legDot * -0.75;
-    x[27] = legDot * -1;
-    x[28] = theta;
-    x[29] = (1.0/8) * pi - theta;
-    x[30] = (2.0/8) * pi - theta;
-    x[31] = (3.0/8) * pi - theta;
-    x[32] = (4.0/8) * pi - theta;
-    x[33] = (5.0/8) * pi - theta;
-    x[34] = (6.0/8) * pi - theta;
-    x[35] = (7.0/8) * pi - theta;
-    x[36] = pi - theta;
+    x[10] = lz * 0.95;
+    x[11] = lz * 0.90;
+    x[12] = lz * 0.85;
+    x[13] = lz * 0.80;
+    x[14] = lz * 0.85;
+    x[15] = lz * 0.90;
+    x[16] = lz * 0.95;
+    x[17] = lz;
+    x[18] = legDot * 0.75;
+    x[19] = legDot * 0.5;
+    x[20] = legDot * 0.25;
+    x[21] = 0.0;
+    x[22] = legDot * -0.25;
+    x[23] = legDot * -0.50;
+    x[24] = legDot * -0.75;
+    x[25] = legDot * -1;
+    x[26] = (1.0/8) * pi - theta;
+    x[27] = (2.0/8) * pi - theta;
+    x[28] = (3.0/8) * pi - theta;
+    x[29] = (4.0/8) * pi - theta;
+    x[30] = (5.0/8) * pi - theta;
+    x[31] = (6.0/8) * pi - theta;
+    x[32] = (7.0/8) * pi - theta;
+    x[33] = pi - theta;
+    x[34] = thetaDot;
+    x[35] = thetaDot;
+    x[36] = thetaDot;
     x[37] = thetaDot;
     x[38] = thetaDot;
     x[39] = thetaDot;
     x[40] = thetaDot;
     x[41] = thetaDot;
-    x[42] = thetaDot;
-    x[43] = thetaDot;
-    x[44] = thetaDot;
-    x[45] = thetaDot;
+    x[42] = 0.1;
+    x[43] = 0.1;
+    x[44] = 0.1;
+    x[45] = 0.1;
     x[46] = 0.1;
     x[47] = 0.1;
     x[48] = 0.1;
     x[49] = 0.1;
-    x[50] = 0.1;
-    x[51] = 0.1;
-    x[52] = 0.1;
-    x[53] = 0.1;
-    x[54] = 0.1;
 
     return true;
 }
@@ -244,8 +230,6 @@ bool Collocation::eval_f(
     bool          new_x,
     Number&       obj_value
     ) {
-    assert(variableCount == 55);
-
     obj_value = COST_FUNCTION;
     
     return true;
@@ -259,7 +243,6 @@ bool Collocation::eval_grad_f(
     bool          new_x,
     Number*       grad_f
     ) {
-    assert(variableCount == 55);
     grad_f[0] = GRAD_F0;
     grad_f[1] = GRAD_F1;
     grad_f[2] = GRAD_F2;
@@ -310,11 +293,6 @@ bool Collocation::eval_grad_f(
     grad_f[47] = GRAD_F47;
     grad_f[48] = GRAD_F48;
     grad_f[49] = GRAD_F49;
-    grad_f[50] = GRAD_F50;
-    grad_f[51] = GRAD_F51;
-    grad_f[52] = GRAD_F52;
-    grad_f[53] = GRAD_F53;
-    grad_f[54] = GRAD_F54;
 
     return true;
 }
@@ -328,8 +306,6 @@ bool Collocation::eval_g(
     Index         constraintCount,
     Number*       constraint // Constraint Values Out
     ) {
-    assert(variableCount == 55);
-    assert(constraintCount == 46);
 
     constraint[0] = CONSTRAINT_0;
     constraint[1] = CONSTRAINT_1;
@@ -371,12 +347,6 @@ bool Collocation::eval_g(
     constraint[37] = CONSTRAINT_37;
     constraint[38] = CONSTRAINT_38;
     constraint[39] = CONSTRAINT_39;
-    constraint[40] = CONSTRAINT_40;
-    constraint[41] = CONSTRAINT_41;
-    constraint[42] = CONSTRAINT_42;
-    constraint[43] = CONSTRAINT_43;
-    constraint[44] = CONSTRAINT_44;
-    constraint[45] = CONSTRAINT_45;
     return true;
 }
 
@@ -392,8 +362,6 @@ bool Collocation::eval_jac_g(
     Index*        jCol,
     Number*       values
     ) {
-    assert(variableCount == 55);
-    assert(constraintCount == 46);
 
     if (values == NULL) {
         // return the structure of the Jacobian
@@ -1261,66 +1229,6 @@ bool Collocation::eval_jac_g(
         jCol[430] = JACOBIAN_Y_430;
         iRow[431] = JACOBIAN_X_431;
         jCol[431] = JACOBIAN_Y_431;
-        iRow[432] = JACOBIAN_X_432;
-        jCol[432] = JACOBIAN_Y_432;
-        iRow[433] = JACOBIAN_X_433;
-        jCol[433] = JACOBIAN_Y_433;
-        iRow[434] = JACOBIAN_X_434;
-        jCol[434] = JACOBIAN_Y_434;
-        iRow[435] = JACOBIAN_X_435;
-        jCol[435] = JACOBIAN_Y_435;
-        iRow[436] = JACOBIAN_X_436;
-        jCol[436] = JACOBIAN_Y_436;
-        iRow[437] = JACOBIAN_X_437;
-        jCol[437] = JACOBIAN_Y_437;
-        iRow[438] = JACOBIAN_X_438;
-        jCol[438] = JACOBIAN_Y_438;
-        iRow[439] = JACOBIAN_X_439;
-        jCol[439] = JACOBIAN_Y_439;
-        iRow[440] = JACOBIAN_X_440;
-        jCol[440] = JACOBIAN_Y_440;
-        iRow[441] = JACOBIAN_X_441;
-        jCol[441] = JACOBIAN_Y_441;
-        iRow[442] = JACOBIAN_X_442;
-        jCol[442] = JACOBIAN_Y_442;
-        iRow[443] = JACOBIAN_X_443;
-        jCol[443] = JACOBIAN_Y_443;
-        iRow[444] = JACOBIAN_X_444;
-        jCol[444] = JACOBIAN_Y_444;
-        iRow[445] = JACOBIAN_X_445;
-        jCol[445] = JACOBIAN_Y_445;
-        iRow[446] = JACOBIAN_X_446;
-        jCol[446] = JACOBIAN_Y_446;
-        iRow[447] = JACOBIAN_X_447;
-        jCol[447] = JACOBIAN_Y_447;
-        iRow[448] = JACOBIAN_X_448;
-        jCol[448] = JACOBIAN_Y_448;
-        iRow[449] = JACOBIAN_X_449;
-        jCol[449] = JACOBIAN_Y_449;
-        iRow[450] = JACOBIAN_X_450;
-        jCol[450] = JACOBIAN_Y_450;
-        iRow[451] = JACOBIAN_X_451;
-        jCol[451] = JACOBIAN_Y_451;
-        iRow[452] = JACOBIAN_X_452;
-        jCol[452] = JACOBIAN_Y_452;
-        iRow[453] = JACOBIAN_X_453;
-        jCol[453] = JACOBIAN_Y_453;
-        iRow[454] = JACOBIAN_X_454;
-        jCol[454] = JACOBIAN_Y_454;
-        iRow[455] = JACOBIAN_X_455;
-        jCol[455] = JACOBIAN_Y_455;
-        iRow[456] = JACOBIAN_X_456;
-        jCol[456] = JACOBIAN_Y_456;
-        iRow[457] = JACOBIAN_X_457;
-        jCol[457] = JACOBIAN_Y_457;
-        iRow[458] = JACOBIAN_X_458;
-        jCol[458] = JACOBIAN_Y_458;
-        iRow[459] = JACOBIAN_X_459;
-        jCol[459] = JACOBIAN_Y_459;
-        iRow[460] = JACOBIAN_X_460;
-        jCol[460] = JACOBIAN_Y_460;
-        iRow[461] = JACOBIAN_X_461;
-        jCol[461] = JACOBIAN_Y_461;
     } else {
         values[0] = JACOBIAN_VAL_0;
         values[1] = JACOBIAN_VAL_1;
@@ -1754,41 +1662,10 @@ bool Collocation::eval_jac_g(
         values[429] = JACOBIAN_VAL_429;
         values[430] = JACOBIAN_VAL_430;
         values[431] = JACOBIAN_VAL_431;
-        values[432] = JACOBIAN_VAL_432;
-        values[433] = JACOBIAN_VAL_433;
-        values[434] = JACOBIAN_VAL_434;
-        values[435] = JACOBIAN_VAL_435;
-        values[436] = JACOBIAN_VAL_436;
-        values[437] = JACOBIAN_VAL_437;
-        values[438] = JACOBIAN_VAL_438;
-        values[439] = JACOBIAN_VAL_439;
-        values[440] = JACOBIAN_VAL_440;
-        values[441] = JACOBIAN_VAL_441;
-        values[442] = JACOBIAN_VAL_442;
-        values[443] = JACOBIAN_VAL_443;
-        values[444] = JACOBIAN_VAL_444;
-        values[445] = JACOBIAN_VAL_445;
-        values[446] = JACOBIAN_VAL_446;
-        values[447] = JACOBIAN_VAL_447;
-        values[448] = JACOBIAN_VAL_448;
-        values[449] = JACOBIAN_VAL_449;
-        values[450] = JACOBIAN_VAL_450;
-        values[451] = JACOBIAN_VAL_451;
-        values[452] = JACOBIAN_VAL_452;
-        values[453] = JACOBIAN_VAL_453;
-        values[454] = JACOBIAN_VAL_454;
-        values[455] = JACOBIAN_VAL_455;
-        values[456] = JACOBIAN_VAL_456;
-        values[457] = JACOBIAN_VAL_457;
-        values[458] = JACOBIAN_VAL_458;
-        values[459] = JACOBIAN_VAL_459;
-        values[460] = JACOBIAN_VAL_460;
-        values[461] = JACOBIAN_VAL_461;
     }
 
     return true;
 }
-
 /*
 //return the structure or values of the Hessian of the Lagrangian
 bool Collocation::eval_h(
@@ -1804,8 +1681,6 @@ bool Collocation::eval_h(
     Index*        jCol,
     Number*       values
     ) {
-    assert(variableCount == 55);
-    assert(constraintCount == 45);
 
     if (values == NULL) {
         iRow[0] = HESSIAN_X_0;
@@ -4344,6 +4219,7 @@ bool Collocation::eval_h(
 }
 
 */
+
 void Collocation::finalize_solution(
     SolverReturn               status,
     Index                      n,
@@ -4357,10 +4233,6 @@ void Collocation::finalize_solution(
     const IpoptData*           ip_data,
     IpoptCalculatedQuantities* ip_cq
     ) {
-    // here is where we would store the solution to variables, or write to a file, etc
-    // so we could use the solution.
-
-    // For this example, we write the solution to the console
     std::cout << std::endl << std::endl << "Solution of the primal variables, x" << std::endl;
     for (Index i = 0; i < n; i++) {
         std::cout << "x[" << i << "] = " << x[i] << std::endl;
@@ -4368,11 +4240,6 @@ void Collocation::finalize_solution(
 
     std::cout << std::endl << std::endl << "Objective value" << std::endl;
     std::cout << "f(x*) = " << obj_value << std::endl;
-
-    // std::cout << std::endl << "Final value of the constraints:" << std::endl;
-    // for (Index i = 0; i < m; i++) {
-    //     std::cout << "g(" << i << ") = " << g[i] << std::endl;
-    // }
 }
 
 bool Collocation::intermediate_callback(

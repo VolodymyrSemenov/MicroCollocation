@@ -27,10 +27,10 @@ LIBS = `PKG_CONFIG_PATH=/usr/local/lib/pkgconfig: pkg-config --libs ipopt`
 all: formulas.hpp collocation
 	./collocation
 
-formulas.hpp: equations
+formulas.hpp: Mathematica/h0_1.txt Mathematica/generate_header.py 
 	python3 Mathematica/generate_header.py 
 
-equations:
+Mathematica/h0_1.txt: Mathematica/create_constraints.wls Mathematica/create_cost_function.wls Mathematica/create_other_constraints.py
 	wolframscript -script Mathematica/create_constraints.wls
 	wolframscript -script Mathematica/create_cost_function.wls
 	python3 Mathematica/create_other_constraints.py
