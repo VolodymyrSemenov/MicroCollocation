@@ -4,6 +4,8 @@ OBJS = hessian.o jacobian.o optimization.o main.o
 # C++ Compiler options
 CXXFLAGS = -O03 -DNDEBUG -std=c++17
 
+COMPILER = g++
+
 prefix=/usr/local
 exec_prefix=${prefix}
 
@@ -20,7 +22,7 @@ all: collocation
 	./collocation
 
 collocation: formulas.hpp $(OBJS) 
-	g++ $(CXXFLAGS) -o $@ $(OBJS) $(LIBS)
+	$(COMPILER) $(CXXFLAGS) -o $@ $(OBJS) $(LIBS)
 
 formulas.hpp: Mathematica/h0_1.txt Mathematica/generate_header.py 
 	python3 Mathematica/generate_header.py 
@@ -31,13 +33,13 @@ Mathematica/h0_1.txt: Mathematica/create_constraints.wls Mathematica/create_cost
 	python3 Mathematica/create_other_constraints.py
 
 main.o: main.cpp optimization.hpp 
-	g++ $(CXXFLAGS) $(INCL) -c -o $@ $<
+	$(COMPILER) $(CXXFLAGS) $(INCL) -c -o $@ $<
 
 # Default rules
 .SUFFIXES: .cpp .o
 
 .cpp.o: $< globals.hpp formulas.hpp
-	g++ $(CXXFLAGS) $(INCL) -c -o $@ $<
+	$(COMPILER) $(CXXFLAGS) $(INCL) -c -o $@ $<
 	
 clean:
 	rm -rf collocation $(OBJS) ipopt.out formulas.hpp

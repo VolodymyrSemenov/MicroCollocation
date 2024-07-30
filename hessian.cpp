@@ -1,6 +1,7 @@
 #include "optimization.hpp"
 #include "globals.hpp"
 #include "formulas.hpp"
+#include <cmath>
 
 //return the structure or values of the Hessian of the Lagrangian
 bool Collocation::eval_h(
