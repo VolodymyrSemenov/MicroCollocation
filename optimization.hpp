@@ -1,7 +1,7 @@
 #include "/usr/local/include/coin-or/IpTNLP.hpp"
 
-#ifndef MAIN_BLOCKER
-#define MAIN_BLOCKER
+#ifndef OPTIMIZATION_BLOCKER
+#define OPTIMIZATION_BLOCKER
 
 using namespace Ipopt;
 
@@ -89,7 +89,7 @@ public:
         *   1) The structure of the hessian of the lagrangian (if "values" is NULL)
         *   2) The values of the hessian of the lagrangian (if "values" is not NULL)
         */
-/*
+
     virtual bool eval_h(
         Index         n,
         const Number* x,
@@ -103,7 +103,7 @@ public:
         Index*        jCol,
         Number*       values
     );
-*/
+
     /** This method is called when the algorithm is complete so the TNLP can store/write the solution */
     virtual void finalize_solution(
         SolverReturn               status,

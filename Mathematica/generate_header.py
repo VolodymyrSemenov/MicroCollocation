@@ -164,7 +164,7 @@ class Defines:
 
         non_zeros = 0
         for i in range(dimensions):
-            for j in range(dimensions):
+            for j in range(i, dimensions):
                 val = ret[i][j]
                 if val != '0':
                     self.defines[f'HESSIAN_X_{non_zeros}'] = i

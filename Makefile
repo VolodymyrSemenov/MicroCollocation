@@ -1,15 +1,8 @@
-# CHANGEME: Here is the name of all object files corresponding to the source
-#           code that you wrote in order to define the problem statement
-OBJS = main.o 
-
-##########################################################################
-#  Usually, you don't have to change anything below.  Note that if you   #
-#  change certain compiler options, you might have to recompile Ipopt.   #
-##########################################################################
+# CHANGEME: Here is the name of all object files corresponding to the source code
+OBJS = optimization.o main.o hessian.o jacobian.o
 
 # C++ Compiler options
-CXXFLAGS = -O03 -DNDEBUG 
-
+CXXFLAGS = -O03 -DNDEBUG -std=c++17
 
 prefix=/usr/local
 exec_prefix=${prefix}
@@ -23,9 +16,11 @@ LIBS = `PKG_CONFIG_PATH=/usr/local/lib/pkgconfig: pkg-config --libs ipopt`
 #LIBS = -L${exec_prefix}/lib -lipopt -L/usr/local/lib -lcoinhsl  -framework Accelerate  -ldl
 
 
-# VLAD Created Rules
-all: formulas.hpp collocation
+all: collocation
 	./collocation
+
+collocation: formulas.hpp $(OBJS) 
+	g++ $(CXXFLAGS) -o $@ $(OBJS) $(LIBS)
 
 formulas.hpp: Mathematica/h0_1.txt Mathematica/generate_header.py 
 	python3 Mathematica/generate_header.py 
@@ -35,15 +30,16 @@ Mathematica/h0_1.txt: Mathematica/create_constraints.wls Mathematica/create_cost
 	wolframscript -script Mathematica/create_cost_function.wls
 	python3 Mathematica/create_other_constraints.py
 
-clean:
-	rm -rf collocation $(OBJS) ipopt.out formulas.hpp
-	rm -f Mathematica/*.txt
+main.o: main.cpp optimization.hpp 
+	g++ $(CXXFLAGS) $(INCL) -c -o $@ $<
 
 # Default rules
 .SUFFIXES: .cpp .o
 
-collocation: $(OBJS)
-	g++ $(CXXFLAGS) -o $@ $(OBJS) $(ADDLIBS) $(LIBS)
-
-.cpp.o: 
+.cpp.o: $< globals.hpp formulas.hpp
 	g++ $(CXXFLAGS) $(INCL) -c -o $@ $<
+	
+clean:
+	rm -rf collocation $(OBJS) ipopt.out formulas.hpp
+	rm -f Mathematica/*.txt
+
