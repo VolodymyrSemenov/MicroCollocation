@@ -2,7 +2,7 @@
 #include <cassert>
 #include <numbers>
 #include <cmath>
-
+#include <chrono>
 #include "/usr/local/include/coin-or/IpIpoptApplication.hpp"
 #include "/usr/local/include/coin-or/IpTNLP.hpp"
 
@@ -40,43 +40,44 @@ const double La = 0.0000166;
 
 
 int main(int argc, char** argv) {
-   // Create a new instance of your nlp
-   //  (use a SmartPtr, not raw)
-   SmartPtr<TNLP> mynlp = new Collocation();
+    // Create a new instance of your nlp
+    //  (use a SmartPtr, not raw)
+    SmartPtr<TNLP> mynlp = new Collocation();
 
-   // Create a new instance of IpoptApplication
-   //  (use a SmartPtr, not raw)
-   // We are using the factory, since this allows us to compile this
-   // example with an Ipopt Windows DLL
-   SmartPtr<IpoptApplication> app = IpoptApplicationFactory();
+    // Create a new instance of IpoptApplication
+    //  (use a SmartPtr, not raw)
+    // We are using the factory, since this allows us to compile this
+    // example with an Ipopt Windows DLL
+    SmartPtr<IpoptApplication> app = IpoptApplicationFactory();
 
-   // Change some options
-   // Note: The following choices are only examples, they might not be
-   //       suitable for your optimization problem.
-   app->Options()->SetNumericValue("tol", 10e-5);
-   app->Options()->SetNumericValue("constr_viol_tol", 10e-3);
-   app->Options()->SetStringValue("hessian_approximation", "limited-memory");
-   //app->Options()->SetIntegerValue("max_iter", 0);
-   //app->Options()->SetStringValue("output_file", "ipopt.out");
+    app->Options()->SetNumericValue("tol", 10e-5);
+    app->Options()->SetNumericValue("constr_viol_tol", 10e-3);
+    app->Options()->SetStringValue("hessian_approximation", "limited-memory");
+    //app->Options()->SetIntegerValue("max_iter", 0);
 
-   // Initialize the IpoptApplication and process the options
-   ApplicationReturnStatus status;
-   status = app->Initialize();
-   if (status != Solve_Succeeded) {
-      std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
-      return (int) status;
-   }
+    // Initialize the IpoptApplication and process the options
+    ApplicationReturnStatus status;
+    status = app->Initialize();
+    if (status != Solve_Succeeded) {
+        std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
+        return (int) status;
+    }
 
-   // Ask Ipopt to solve the problem
-   status = app->OptimizeTNLP(mynlp);
+    auto start = std::chrono::high_resolution_clock::now();
+    // Ask Ipopt to solve the problem
+    status = app->OptimizeTNLP(mynlp);
 
-   if (status == Solve_Succeeded) {
-      std::cout << std::endl << std::endl << "*** The problem solved!" << std::endl;
-   } else {
-      std::cout << std::endl << std::endl << "*** The problem FAILED!" << std::endl;
-   }
+    if (status == Solve_Succeeded) {
+        std::cout << std::endl << std::endl << "*** The problem solved!" << std::endl;
+    } else {
+        std::cout << std::endl << std::endl << "*** The problem FAILED!" << std::endl;
+    }
 
-   return (int) status;
+    auto stop = std::chrono::high_resolution_clock::now();
+
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+    std::cout << "Actual time for optimization: " << duration.count() << std::endl;
+    return (int) status;
 }
 
 
@@ -99,14 +100,8 @@ bool Collocation::get_nlp_info(
     variableCount = 50;
 
     constraintCount = 40;
-
-    // jacobian contains 8 nonzeros
     jacobianNonZeroCount = JACOBIAN_NONZERO;
-
-    // we only need the lower left corner and middle diagonal (since it is symmetric)
     hessianNonZeroCount = HESSIAN_NONZERO;
-
-    // use C style indexing (0-based)
     index_style = TNLP::C_STYLE;
 
     return true;
@@ -218,6 +213,56 @@ bool Collocation::get_starting_point(
     x[47] = 0.1;
     x[48] = 0.1;
     x[49] = 0.1;
+// x[0] = 0.0850791;
+// x[1] = 0.860168;
+// x[2] = 0.848687;
+// x[3] = 0.922777;
+// x[4] = 1.12963;
+// x[5] = 1.17345;
+// x[6] = 1.14967;
+// x[7] = 1.07011;
+// x[8] = 0.965738;
+// x[9] = 0.865917;
+// x[10] = 0.157015;
+// x[11] = 0.145692;
+// x[12] = 0.137714;
+// x[13] = 0.134176;
+// x[14] = 0.135433;
+// x[15] = 0.141075;
+// x[16] = 0.15002;
+// x[17] = 0.16072;
+// x[18] = -1.17288;
+// x[19] = -0.929819;
+// x[20] = -0.553136;
+// x[21] = -0.106674;
+// x[22] = 0.336615;
+// x[23] = 0.707198;
+// x[24] = 0.950342;
+// x[25] = 1.03405;
+// x[26] = 1.34147;
+// x[27] = 1.37266;
+// x[28] = 1.4062;
+// x[29] = 1.44183;
+// x[30] = 1.4778;
+// x[31] = 1.512;
+// x[32] = 1.5431;
+// x[33] = 1.5708;
+// x[34] = 2.81434;
+// x[35] = 3.04436;
+// x[36] = 3.26734;
+// x[37] = 3.40185;
+// x[38] = 3.32774;
+// x[39] = 3.08236;
+// x[40] = 2.76149;
+// x[41] = 2.45532;
+// x[42] = -0.5;
+// x[43] = -0.5;
+// x[44] = 0.499996;
+// x[45] = 0.499999;
+// x[46] = 0.5;
+// x[47] = 0.5;
+// x[48] = 0.5;
+// x[49] = 0.499998;
 
     return true;
 }
@@ -3183,192 +3228,6 @@ bool Collocation::eval_h(
         jCol[748] = HESSIAN_Y_748;
         iRow[749] = HESSIAN_X_749;
         jCol[749] = HESSIAN_Y_749;
-        iRow[750] = HESSIAN_X_750;
-        jCol[750] = HESSIAN_Y_750;
-        iRow[751] = HESSIAN_X_751;
-        jCol[751] = HESSIAN_Y_751;
-        iRow[752] = HESSIAN_X_752;
-        jCol[752] = HESSIAN_Y_752;
-        iRow[753] = HESSIAN_X_753;
-        jCol[753] = HESSIAN_Y_753;
-        iRow[754] = HESSIAN_X_754;
-        jCol[754] = HESSIAN_Y_754;
-        iRow[755] = HESSIAN_X_755;
-        jCol[755] = HESSIAN_Y_755;
-        iRow[756] = HESSIAN_X_756;
-        jCol[756] = HESSIAN_Y_756;
-        iRow[757] = HESSIAN_X_757;
-        jCol[757] = HESSIAN_Y_757;
-        iRow[758] = HESSIAN_X_758;
-        jCol[758] = HESSIAN_Y_758;
-        iRow[759] = HESSIAN_X_759;
-        jCol[759] = HESSIAN_Y_759;
-        iRow[760] = HESSIAN_X_760;
-        jCol[760] = HESSIAN_Y_760;
-        iRow[761] = HESSIAN_X_761;
-        jCol[761] = HESSIAN_Y_761;
-        iRow[762] = HESSIAN_X_762;
-        jCol[762] = HESSIAN_Y_762;
-        iRow[763] = HESSIAN_X_763;
-        jCol[763] = HESSIAN_Y_763;
-        iRow[764] = HESSIAN_X_764;
-        jCol[764] = HESSIAN_Y_764;
-        iRow[765] = HESSIAN_X_765;
-        jCol[765] = HESSIAN_Y_765;
-        iRow[766] = HESSIAN_X_766;
-        jCol[766] = HESSIAN_Y_766;
-        iRow[767] = HESSIAN_X_767;
-        jCol[767] = HESSIAN_Y_767;
-        iRow[768] = HESSIAN_X_768;
-        jCol[768] = HESSIAN_Y_768;
-        iRow[769] = HESSIAN_X_769;
-        jCol[769] = HESSIAN_Y_769;
-        iRow[770] = HESSIAN_X_770;
-        jCol[770] = HESSIAN_Y_770;
-        iRow[771] = HESSIAN_X_771;
-        jCol[771] = HESSIAN_Y_771;
-        iRow[772] = HESSIAN_X_772;
-        jCol[772] = HESSIAN_Y_772;
-        iRow[773] = HESSIAN_X_773;
-        jCol[773] = HESSIAN_Y_773;
-        iRow[774] = HESSIAN_X_774;
-        jCol[774] = HESSIAN_Y_774;
-        iRow[775] = HESSIAN_X_775;
-        jCol[775] = HESSIAN_Y_775;
-        iRow[776] = HESSIAN_X_776;
-        jCol[776] = HESSIAN_Y_776;
-        iRow[777] = HESSIAN_X_777;
-        jCol[777] = HESSIAN_Y_777;
-        iRow[778] = HESSIAN_X_778;
-        jCol[778] = HESSIAN_Y_778;
-        iRow[779] = HESSIAN_X_779;
-        jCol[779] = HESSIAN_Y_779;
-        iRow[780] = HESSIAN_X_780;
-        jCol[780] = HESSIAN_Y_780;
-        iRow[781] = HESSIAN_X_781;
-        jCol[781] = HESSIAN_Y_781;
-        iRow[782] = HESSIAN_X_782;
-        jCol[782] = HESSIAN_Y_782;
-        iRow[783] = HESSIAN_X_783;
-        jCol[783] = HESSIAN_Y_783;
-        iRow[784] = HESSIAN_X_784;
-        jCol[784] = HESSIAN_Y_784;
-        iRow[785] = HESSIAN_X_785;
-        jCol[785] = HESSIAN_Y_785;
-        iRow[786] = HESSIAN_X_786;
-        jCol[786] = HESSIAN_Y_786;
-        iRow[787] = HESSIAN_X_787;
-        jCol[787] = HESSIAN_Y_787;
-        iRow[788] = HESSIAN_X_788;
-        jCol[788] = HESSIAN_Y_788;
-        iRow[789] = HESSIAN_X_789;
-        jCol[789] = HESSIAN_Y_789;
-        iRow[790] = HESSIAN_X_790;
-        jCol[790] = HESSIAN_Y_790;
-        iRow[791] = HESSIAN_X_791;
-        jCol[791] = HESSIAN_Y_791;
-        iRow[792] = HESSIAN_X_792;
-        jCol[792] = HESSIAN_Y_792;
-        iRow[793] = HESSIAN_X_793;
-        jCol[793] = HESSIAN_Y_793;
-        iRow[794] = HESSIAN_X_794;
-        jCol[794] = HESSIAN_Y_794;
-        iRow[795] = HESSIAN_X_795;
-        jCol[795] = HESSIAN_Y_795;
-        iRow[796] = HESSIAN_X_796;
-        jCol[796] = HESSIAN_Y_796;
-        iRow[797] = HESSIAN_X_797;
-        jCol[797] = HESSIAN_Y_797;
-        iRow[798] = HESSIAN_X_798;
-        jCol[798] = HESSIAN_Y_798;
-        iRow[799] = HESSIAN_X_799;
-        jCol[799] = HESSIAN_Y_799;
-        iRow[800] = HESSIAN_X_800;
-        jCol[800] = HESSIAN_Y_800;
-        iRow[801] = HESSIAN_X_801;
-        jCol[801] = HESSIAN_Y_801;
-        iRow[802] = HESSIAN_X_802;
-        jCol[802] = HESSIAN_Y_802;
-        iRow[803] = HESSIAN_X_803;
-        jCol[803] = HESSIAN_Y_803;
-        iRow[804] = HESSIAN_X_804;
-        jCol[804] = HESSIAN_Y_804;
-        iRow[805] = HESSIAN_X_805;
-        jCol[805] = HESSIAN_Y_805;
-        iRow[806] = HESSIAN_X_806;
-        jCol[806] = HESSIAN_Y_806;
-        iRow[807] = HESSIAN_X_807;
-        jCol[807] = HESSIAN_Y_807;
-        iRow[808] = HESSIAN_X_808;
-        jCol[808] = HESSIAN_Y_808;
-        iRow[809] = HESSIAN_X_809;
-        jCol[809] = HESSIAN_Y_809;
-        iRow[810] = HESSIAN_X_810;
-        jCol[810] = HESSIAN_Y_810;
-        iRow[811] = HESSIAN_X_811;
-        jCol[811] = HESSIAN_Y_811;
-        iRow[812] = HESSIAN_X_812;
-        jCol[812] = HESSIAN_Y_812;
-        iRow[813] = HESSIAN_X_813;
-        jCol[813] = HESSIAN_Y_813;
-        iRow[814] = HESSIAN_X_814;
-        jCol[814] = HESSIAN_Y_814;
-        iRow[815] = HESSIAN_X_815;
-        jCol[815] = HESSIAN_Y_815;
-        iRow[816] = HESSIAN_X_816;
-        jCol[816] = HESSIAN_Y_816;
-        iRow[817] = HESSIAN_X_817;
-        jCol[817] = HESSIAN_Y_817;
-        iRow[818] = HESSIAN_X_818;
-        jCol[818] = HESSIAN_Y_818;
-        iRow[819] = HESSIAN_X_819;
-        jCol[819] = HESSIAN_Y_819;
-        iRow[820] = HESSIAN_X_820;
-        jCol[820] = HESSIAN_Y_820;
-        iRow[821] = HESSIAN_X_821;
-        jCol[821] = HESSIAN_Y_821;
-        iRow[822] = HESSIAN_X_822;
-        jCol[822] = HESSIAN_Y_822;
-        iRow[823] = HESSIAN_X_823;
-        jCol[823] = HESSIAN_Y_823;
-        iRow[824] = HESSIAN_X_824;
-        jCol[824] = HESSIAN_Y_824;
-        iRow[825] = HESSIAN_X_825;
-        jCol[825] = HESSIAN_Y_825;
-        iRow[826] = HESSIAN_X_826;
-        jCol[826] = HESSIAN_Y_826;
-        iRow[827] = HESSIAN_X_827;
-        jCol[827] = HESSIAN_Y_827;
-        iRow[828] = HESSIAN_X_828;
-        jCol[828] = HESSIAN_Y_828;
-        iRow[829] = HESSIAN_X_829;
-        jCol[829] = HESSIAN_Y_829;
-        iRow[830] = HESSIAN_X_830;
-        jCol[830] = HESSIAN_Y_830;
-        iRow[831] = HESSIAN_X_831;
-        jCol[831] = HESSIAN_Y_831;
-        iRow[832] = HESSIAN_X_832;
-        jCol[832] = HESSIAN_Y_832;
-        iRow[833] = HESSIAN_X_833;
-        jCol[833] = HESSIAN_Y_833;
-        iRow[834] = HESSIAN_X_834;
-        jCol[834] = HESSIAN_Y_834;
-        iRow[835] = HESSIAN_X_835;
-        jCol[835] = HESSIAN_Y_835;
-        iRow[836] = HESSIAN_X_836;
-        jCol[836] = HESSIAN_Y_836;
-        iRow[837] = HESSIAN_X_837;
-        jCol[837] = HESSIAN_Y_837;
-        iRow[838] = HESSIAN_X_838;
-        jCol[838] = HESSIAN_Y_838;
-        iRow[839] = HESSIAN_X_839;
-        jCol[839] = HESSIAN_Y_839;
-        iRow[840] = HESSIAN_X_840;
-        jCol[840] = HESSIAN_Y_840;
-        iRow[841] = HESSIAN_X_841;
-        jCol[841] = HESSIAN_Y_841;
-        iRow[842] = HESSIAN_X_842;
-        jCol[842] = HESSIAN_Y_842;
     } else {
         values[0] = HESSIAN_VAL_0;
         values[1] = HESSIAN_VAL_1;
@@ -4120,104 +3979,10 @@ bool Collocation::eval_h(
         values[747] = HESSIAN_VAL_747;
         values[748] = HESSIAN_VAL_748;
         values[749] = HESSIAN_VAL_749;
-        values[750] = HESSIAN_VAL_750;
-        values[751] = HESSIAN_VAL_751;
-        values[752] = HESSIAN_VAL_752;
-        values[753] = HESSIAN_VAL_753;
-        values[754] = HESSIAN_VAL_754;
-        values[755] = HESSIAN_VAL_755;
-        values[756] = HESSIAN_VAL_756;
-        values[757] = HESSIAN_VAL_757;
-        values[758] = HESSIAN_VAL_758;
-        values[759] = HESSIAN_VAL_759;
-        values[760] = HESSIAN_VAL_760;
-        values[761] = HESSIAN_VAL_761;
-        values[762] = HESSIAN_VAL_762;
-        values[763] = HESSIAN_VAL_763;
-        values[764] = HESSIAN_VAL_764;
-        values[765] = HESSIAN_VAL_765;
-        values[766] = HESSIAN_VAL_766;
-        values[767] = HESSIAN_VAL_767;
-        values[768] = HESSIAN_VAL_768;
-        values[769] = HESSIAN_VAL_769;
-        values[770] = HESSIAN_VAL_770;
-        values[771] = HESSIAN_VAL_771;
-        values[772] = HESSIAN_VAL_772;
-        values[773] = HESSIAN_VAL_773;
-        values[774] = HESSIAN_VAL_774;
-        values[775] = HESSIAN_VAL_775;
-        values[776] = HESSIAN_VAL_776;
-        values[777] = HESSIAN_VAL_777;
-        values[778] = HESSIAN_VAL_778;
-        values[779] = HESSIAN_VAL_779;
-        values[780] = HESSIAN_VAL_780;
-        values[781] = HESSIAN_VAL_781;
-        values[782] = HESSIAN_VAL_782;
-        values[783] = HESSIAN_VAL_783;
-        values[784] = HESSIAN_VAL_784;
-        values[785] = HESSIAN_VAL_785;
-        values[786] = HESSIAN_VAL_786;
-        values[787] = HESSIAN_VAL_787;
-        values[788] = HESSIAN_VAL_788;
-        values[789] = HESSIAN_VAL_789;
-        values[790] = HESSIAN_VAL_790;
-        values[791] = HESSIAN_VAL_791;
-        values[792] = HESSIAN_VAL_792;
-        values[793] = HESSIAN_VAL_793;
-        values[794] = HESSIAN_VAL_794;
-        values[795] = HESSIAN_VAL_795;
-        values[796] = HESSIAN_VAL_796;
-        values[797] = HESSIAN_VAL_797;
-        values[798] = HESSIAN_VAL_798;
-        values[799] = HESSIAN_VAL_799;
-        values[800] = HESSIAN_VAL_800;
-        values[801] = HESSIAN_VAL_801;
-        values[802] = HESSIAN_VAL_802;
-        values[803] = HESSIAN_VAL_803;
-        values[804] = HESSIAN_VAL_804;
-        values[805] = HESSIAN_VAL_805;
-        values[806] = HESSIAN_VAL_806;
-        values[807] = HESSIAN_VAL_807;
-        values[808] = HESSIAN_VAL_808;
-        values[809] = HESSIAN_VAL_809;
-        values[810] = HESSIAN_VAL_810;
-        values[811] = HESSIAN_VAL_811;
-        values[812] = HESSIAN_VAL_812;
-        values[813] = HESSIAN_VAL_813;
-        values[814] = HESSIAN_VAL_814;
-        values[815] = HESSIAN_VAL_815;
-        values[816] = HESSIAN_VAL_816;
-        values[817] = HESSIAN_VAL_817;
-        values[818] = HESSIAN_VAL_818;
-        values[819] = HESSIAN_VAL_819;
-        values[820] = HESSIAN_VAL_820;
-        values[821] = HESSIAN_VAL_821;
-        values[822] = HESSIAN_VAL_822;
-        values[823] = HESSIAN_VAL_823;
-        values[824] = HESSIAN_VAL_824;
-        values[825] = HESSIAN_VAL_825;
-        values[826] = HESSIAN_VAL_826;
-        values[827] = HESSIAN_VAL_827;
-        values[828] = HESSIAN_VAL_828;
-        values[829] = HESSIAN_VAL_829;
-        values[830] = HESSIAN_VAL_830;
-        values[831] = HESSIAN_VAL_831;
-        values[832] = HESSIAN_VAL_832;
-        values[833] = HESSIAN_VAL_833;
-        values[834] = HESSIAN_VAL_834;
-        values[835] = HESSIAN_VAL_835;
-        values[836] = HESSIAN_VAL_836;
-        values[837] = HESSIAN_VAL_837;
-        values[838] = HESSIAN_VAL_838;
-        values[839] = HESSIAN_VAL_839;
-        values[840] = HESSIAN_VAL_840;
-        values[841] = HESSIAN_VAL_841;
-        values[842] = HESSIAN_VAL_842;
     }
 
     return true;
 }
-
 */
 
 void Collocation::finalize_solution(

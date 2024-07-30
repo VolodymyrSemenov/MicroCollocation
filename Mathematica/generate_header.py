@@ -116,6 +116,11 @@ class Constraint:
             parsed.append([])
             for col in row[1:-1].split(', '):
                 parsed[-1].append(col)
+        skip = [46, 37, 28, 19, 10]
+        for i in skip:
+            parsed.pop(i)
+            for row in parsed:
+                row.pop(i)
         return parsed
 
 class Defines:
