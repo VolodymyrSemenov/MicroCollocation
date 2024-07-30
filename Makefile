@@ -1,10 +1,10 @@
 # CHANGEME: Here is the name of all object files corresponding to the source code
-OBJS = hessian.o jacobian.o optimization.o main.o 
+OBJS = optimization.o main.o jacobian.o hessian.o 
 
 # C++ Compiler options
 CXXFLAGS = -O03 -DNDEBUG -std=c++17
 
-COMPILER = g++
+COMPILER = clang++
 
 prefix=/usr/local
 exec_prefix=${prefix}
@@ -24,7 +24,7 @@ all: collocation
 collocation: formulas.hpp $(OBJS) 
 	$(COMPILER) $(CXXFLAGS) -o $@ $(OBJS) $(LIBS)
 
-formulas.hpp: Mathematica/h0_1.txt Mathematica/generate_header.py 
+formulas.hpp: Mathematica/generate_header.py 
 	python3 Mathematica/generate_header.py 
 
 Mathematica/h0_1.txt: Mathematica/create_constraints.wls Mathematica/create_cost_function.wls Mathematica/create_other_constraints.py
@@ -42,6 +42,5 @@ main.o: main.cpp optimization.hpp
 	$(COMPILER) $(CXXFLAGS) $(INCL) -c -o $@ $<
 	
 clean:
-	rm -rf collocation $(OBJS) ipopt.out formulas.hpp
-	rm -f Mathematica/*.txt
+	rm -rf collocation $(OBJS) ipopt.out 
 
