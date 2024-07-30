@@ -1,5 +1,5 @@
 # CHANGEME: Here is the name of all object files corresponding to the source code
-OBJS = optimization.o main.o hessian.o jacobian.o
+OBJS = hessian.o jacobian.o optimization.o main.o 
 
 # C++ Compiler options
 CXXFLAGS = -O03 -DNDEBUG -std=c++17
