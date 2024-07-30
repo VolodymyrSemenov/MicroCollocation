@@ -23,10 +23,8 @@ class Constraint:
                 case 'ia0':
                     return 'iaz'
 
-        def replace_double(text):
-            return str(int(text.group(1)) / int(text.group(2)))
         
-        def replace_double2(text):
+        def replace_double(text):
             return text.group(1) + '.0' + '/'
         
         def replace_subscript(text):
@@ -34,9 +32,31 @@ class Constraint:
             return ''.join(inner_word.split(", "))
 
         def replace_x(text):
-            inner_word = text.group(0)
-            return f'x[{int(inner_word[1:]) - 1}]'
-        
+            inner_word = int(text.group(0)[1:])
+            number = int(inner_word) - 1
+            if inner_word == 11:
+                return "leg"
+            elif 11 < inner_word < 20:
+                number -= 1
+            elif inner_word == 20:
+                return "legDot"
+            elif 20 < inner_word < 29:
+                number -= 2
+            elif inner_word == 29:
+                return "theta"
+            elif 29 < inner_word < 38:
+                number -= 3
+            elif inner_word == 38:
+                return "thetaDot"
+            elif 38 < inner_word < 47:
+                number -= 4
+            elif inner_word == 47:
+                return "iaz"
+            elif 47 < inner_word <= 55:
+                number -= 5
+
+            return f'x[{number}]'
+
         def replace_sin(text):
             inner_word = text.group(1)
             return f'std::sin({inner_word})'
@@ -78,14 +98,16 @@ class Constraint:
         equation = re.sub(r"Cos\[([^\]]*)\]", replace_cos, equation)
         equation = re.sub(r"Sin\[([^\]]*)\]", replace_sin, equation)
         equation = re.sub(r"(x\d+)", replace_x, equation)
-        #equation = re.sub(r"(\d+) ?\/ ?(\d+)", replace_double,equation)
-        equation = re.sub(r"(\d+) ?\/", replace_double2,equation)
+        equation = re.sub(r"(\d+) ?\/", replace_double,equation)
         return equation
 
     def parse_lagrangian(self, file):
         lagrangians = list(open_file_in_same_directory(file).split('\n'))
         for i in range(len(lagrangians)):
             lagrangians[i] = self.parse_equation(lagrangians[i])
+        skip = [46, 37, 28, 19, 10]
+        for i in skip:
+            lagrangians.pop(i)
         return lagrangians
 
     def parse_hessian(self, file):
@@ -94,6 +116,11 @@ class Constraint:
             parsed.append([])
             for col in row[1:-1].split(', '):
                 parsed[-1].append(col)
+        skip = [46, 37, 28, 19, 10]
+        for i in skip:
+            parsed.pop(i)
+            for row in parsed:
+                row.pop(i)
         return parsed
 
 class Defines:
@@ -117,13 +144,34 @@ class Defines:
                     self.defines[f'JACOBIAN_Y_{non_zeros}'] = j
                     self.defines[f'JACOBIAN_VAL_{non_zeros}'] = val
                     non_zeros += 1
-                    
-
         self.defines["JACOBIAN_NONZERO"] = non_zeros
 
     def add_hessian_of_lagrangian(self, constraints, cost_function):
+        dimensions = len(constraints[0].hessian)
+        ret = [['0']*dimensions for _ in range(dimensions)] 
+        for c in range(len(constraints)):
+            for i in range(dimensions):
+                for j in range(dimensions):
+                    val = constraints[c].hessian[i][j]
+                    if val != '0':
+                        ret[i][j] += f' + lambda[{c}] * ({val})'
+
+        for i in range(dimensions):
+            for j in range(dimensions):
+                val = cost_function.hessian[i][j]
+                if val != '0':
+                    ret[i][j] += f' + obj_factor * ({val})'
+
         non_zeros = 0
-        non_zero_list = []
+        for i in range(dimensions):
+            for j in range(i, dimensions):
+                val = ret[i][j]
+                if val != '0':
+                    self.defines[f'HESSIAN_X_{non_zeros}'] = i
+                    self.defines[f'HESSIAN_Y_{non_zeros}'] = j
+                    self.defines[f'HESSIAN_VAL_{non_zeros}'] = val
+                    non_zeros += 1
+
         self.defines["HESSIAN_NONZERO"] = non_zeros
 
     def return_defines(self):
@@ -138,18 +186,16 @@ def generate_header(constraints, cost_function):
 
     with open("formulas.hpp", "w+") as f:
         f.write(define_list.return_defines())
-
-        
+      
 
 if __name__ == '__main__':
-    
     constraints = []
+    # for i in range(1, 6+1):
+    #     constraints.append(Constraint(f'h{0}_{i}.txt'))
+
     for i in range(1, 8+1):
         for j in range(1, 5+1):
             constraints.append(Constraint(f'h{i}_{j}.txt'))
-
-    for i in range(1, 6+1):
-        constraints.append(Constraint(f'h{0}_{i}.txt'))
 
     cost_function = Constraint("cost_function.txt") # Not a constraint but same formatting used
     

@@ -21,6 +21,6 @@ for i in range(6):
     f2.write('\n'.join(lag))
 
     f3 = writeable_file(hessian_filename)
-    f3.write(f"{{{', '.join(['0']*55) }}}\n"*55)
+    f3.write('\n'.join([f"{{{', '.join(['0']*55) }}}"]*55))
 
 

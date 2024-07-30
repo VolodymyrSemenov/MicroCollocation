@@ -1,7 +1,7 @@
 #!/usr/bin/env wolframscript
 (* ::Package:: *)
 
-costF=-10 Subscript[x, 28]Sin[Subscript[x, 37]]-10Subscript[x, 19]*Subscript[x, 37]Cos[Subscript[x, 37]]+ Subscript[x, 28 ]Cos[Subscript[x, 37]]-Subscript[x, 19]*Subscript[x, 46]Sin[Subscript[x, 37]]+Subscript[x, 1]/(14*Subscript[R, a])(\!\(
+costF=-10 Subscript[x, 28]Sin[Subscript[x, 37]]-10Subscript[x, 19]*Subscript[x, 46]Cos[Subscript[x, 37]]+ Subscript[x, 28 ]Cos[Subscript[x, 37]]-Subscript[x, 19]*Subscript[x, 46]Sin[Subscript[x, 37]]+Subscript[x, 1]/(16*Subscript[R, a])(\!\(
 \*SubsuperscriptBox[\(x\), \(2\), \(2\)] + \(2 
 \*SubsuperscriptBox[\(x\), \(3\), \(2\)]\) + \ \(2 
 \*SubsuperscriptBox[\(x\), \(4\), \(2\)]\) + \(2 

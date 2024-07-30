@@ -6,7 +6,7 @@ tstep=x1/(numPoint-1);
 
 deq[x1_,x2_, x3_,x4_, x5_,Va_]:={x2,
 x1*x4^2-g*Sin[x3]-Subscript[k, 0]/m*(x1-l0)-b/m*x2,x4,
-(1+(R^2 J^2)/(m*x1))^-1*((-2*x2*x3)/x1-(g*Cos[x3])/x1-(R^2*c*x4)/(m*x1^2)+(kt*x5*R)/(m*x1^2)),
+(1+(R^2 J^2)/(m*x1))^-1*((-2*x2*x4)/x1-(g*Cos[x3])/x1-(R^2*c*x4)/(m*x1^2)+(kt*x5*R)/(m*x1^2)),
 Va/La-(x5*Ra)/La-(R*kb*x4)/La}
 
 cpoint[xl_,xr_,dxl_,dxr_,h_]:=(xl+xr)/2+h/8*(dxl-dxr)
@@ -186,6 +186,4 @@ Export["hess_h8_2.txt",hess[h8[[2]]]]
 Export["hess_h8_3.txt",hess[h8[[3]]]]
 Export["hess_h8_4.txt",hess[h8[[4]]]]
 Export["hess_h8_5.txt",hess[h8[[5]]]]
-
-
 
