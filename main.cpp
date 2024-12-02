@@ -1,8 +1,8 @@
 #include <iostream>
 #include <chrono>
 
-#include "/usr/local/include/coin-or/IpIpoptApplication.hpp"
-#include "/usr/local/include/coin-or/IpTNLP.hpp"
+#include "/util/Ipopt/include/coin-or/IpIpoptApplication.hpp"
+#include "/util/Ipopt/include/coin-or/IpTNLP.hpp"
 
 #include "optimization.hpp"
 #include "globals.hpp"

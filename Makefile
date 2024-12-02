@@ -6,15 +6,17 @@ CXXFLAGS = -O03 -DNDEBUG -std=c++17
 
 COMPILER = g++
 
+
 prefix=/usr/local
 exec_prefix=${prefix}
 
 # Include directories
-INCL = `PKG_CONFIG_PATH=/usr/local/lib/pkgconfig: pkg-config --cflags ipopt`
+INCL = `PKG_CONFIG_PATH=/util/Ipopt/lib/pkgconfig: pkg-config --cflags ipopt`
 #INCL = -I${prefix}/include/coin-or -I/usr/local/include/coin-or/hsl   -DIPOPTLIB_BUILD $(ADDINCFLAGS)
 
 # Linker flags
-LIBS = `PKG_CONFIG_PATH=/usr/local/lib/pkgconfig: pkg-config --libs ipopt`
+export LD_LIBRARY_PATH=/util/Ipopt/lib
+LIBS = `PKG_CONFIG_PATH=/util/Ipopt/lib/pkgconfig: pkg-config --libs ipopt -rpath=/util/Ipopt/lib`
 #LIBS = -L${exec_prefix}/lib -lipopt -L/usr/local/lib -lcoinhsl  -framework Accelerate  -ldl
 
 
@@ -42,6 +44,5 @@ main.o: main.cpp optimization.hpp
 	$(COMPILER) $(CXXFLAGS) $(INCL) -c -o $@ $<
 	
 clean:
-	rm -rf collocation $(OBJS) ipopt.out formulas.hpp
-	rm -f Mathematica/*.txt
+	rm -rf collocation $(OBJS) ipopt.out
 
